@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+	<style>
+      
+      .axis text {
+        font-family: 'Poiret One', cursive;
+        font-size: 10pt;
+      }
+      .axis .label {
+        font-size: 12pt;
+      }
+
+      .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+	
+      }
+      
+
+	  #Q3 {
+        position: absolute;
+        left: 60px;
+        top: 635px;  
+	  }
+	  
+	  #Q4 {
+        position: absolute;
+        left: 150px;
+        top: 635px;  
+	  }
+	  
+	  #Q5 {
+        position: absolute;
+        left: 240px;
+        top: 635px;  
+	  }
+	  
+	  #Q6 {
+        position: absolute;
+        left: 330px;
+        top: 635px;  
+	  }
+	  
+	  #Q7 {
+        position: absolute;
+        left: 420px;
+        top: 635px;  
+	  }
+	  
+	  #Q8 {
+        position: absolute;
+        left: 510px;
+        top: 635px;  
+	  }
+      
+	  #WD {
+        position: absolute;
+        left: 600px;
+        top: 635px;  
+	  }
+	  
+    </style>	
+  </head>
+  <body>
+     
+	  <div class = "buttonex" id="Q3">
+        <button>Quality:3</button>
+      </div>
+	  
+	  <div class = "buttonex" id="Q4">
+        <button>Quality:4</button>
+      </div>
+	  
+	  <div class = "buttonex" id="Q5">
+        <button>Quality:5</button>
+      </div>
+	  
+	  <div class = "buttonex" id="Q6">
+        <button>Quality:6</button>
+      </div>
+	   
+	  <div class = "buttonex" id="Q7">
+        <button>Quality:7</button>
+      </div> 
+	   
+	  <div class = "buttonex" id="Q8">
+        <button>Quality:8</button>
+      </div>  
+	   
+	  <div class = "buttonex" id="WD">
+        <button>Whole Data</button>
+      </div> 
+	   
+    <script>
+	
+	  var outerWidth = 900;
+      var outerHeight = 700;
+      var rMin = 4;            // Keeping radius same for each data point
+      var rMax = 4;	
+      var xColumn = "citric.acid";
+      var yColumn = "volatile.acidity";
+      var rColumn = "alcohol";
+
+      var svg = d3.select("body").append("svg")  // Defining SVG size
+        .attr("width",  outerWidth)
+        .attr("height", outerHeight);
+		
+	  
+
+      var xScale = d3.scale.linear().range([50, 700 + 50]);    //  Defining scales
+      var yScale = d3.scale.linear().range([500 + 50, 50]);
+      var rScale = d3.scale.linear().range([rMin, rMax]);
+	  
+      var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+	  
+	  var colorScale = d3.scale.ordinal()
+                          .range(["#2c7bb6","#00a6ca","#00ccbc","#90eb9d","#ffff8c","#f9d057","#f29e2e","#e76818","#d7191c"]);
+	 
+      svg.append("text")
+        .attr("x", (800 / 2))             
+        .attr("y", 30)
+        .attr("text-anchor", "middle")  	
+        .style("font-size", "22px") 
+        .text("Citric Acid v/s Volatile Acidity Plot in Red Wines for Whole Data" );        
+	  
+	   
+	   // Creating Legend
+	   
+	   svg.append("defs")
+          .append("linearGradient")
+          .attr("id", "legendGradientMulti")
+          .attr("x1", "0%").attr("y1", "0%")
+          .attr("x2", "0%").attr("y2", "100%")
+          .selectAll("stop")
+          .data([
+          {offset: "0%", color: "#2c7bb6"},
+          {offset: "12.5%", color: "#00a6ca"},
+          {offset: "25%", color: "#00ccbc"},
+          {offset: "37.5%", color: "#90eb9d"},
+          {offset: "50%", color: "#ffff8c"},
+          {offset: "62.5%", color: "#f9d057"},
+          {offset: "75%", color: "#f29e2e"},
+          {offset: "87.5%", color: "#e76818"},
+          {offset: "100%", color: "#d7191c"} ])
+          .enter().append("stop")
+          .attr("offset", function(d) { return d.offset; })
+          .attr("stop-color", function(d) { return d.color; });
+	   
+	   
+	   svg.append("rect")
+          .attr("x", 855).attr("y", 120)
+          .attr("width", 20).attr("height", 400)
+          .style("fill", "url(#legendGradientMulti)");
+	   
+	   
+	   svg.append("text")
+        .attr("x", 865)             
+        .attr("y", 90)
+        .attr("text-anchor", "middle")  	
+        .style("font-size", "16px") 
+        .text("Alcohol" );    
+	   
+	   svg.append("text")
+        .attr("x", 860)             
+        .attr("y", 105)
+        .attr("text-anchor", "middle")  	
+        .style("font-size", "12px") 
+        .text("(% by volume)" ); 
+	   
+	  svg.append("text")
+        .attr("x", 845)             
+        .attr("y", 135)
+        .attr("text-anchor", "middle")  	
+        .style("font-size", "14px") 
+        .text("8" ); 
+	  
+	  svg.append("text")
+        .attr("x", 845)             
+        .attr("y", 515)
+        .attr("text-anchor", "middle")  	
+        .style("font-size", "14px") 
+        .text("14" ); 
+	  
+	  
+	  // Setting domains for already defined scales
+	  
+	  function set_domain(data) {
+	  
+	     xScale.domain( d3.extent(data, function (d){ return d[xColumn]; }));
+         yScale.domain( d3.extent(data, function (d){ return d[yColumn]; }));
+         rScale.domain([0, d3.max(data, function (d){ return d[rColumn]; })]);
+		 colorScale.domain( d3.extent(data, function (d){ return d[rColumn]; }));
+	  
+	     }
+	  
+	  // Main function to create scatter plot
+	  
+      function render(data,num,num1,set){
+        
+       
+        svg.select("text")         // Udating title according to selected button
+        .attr("x", (800 / 2))             
+        .attr("y", 30)
+        .attr("text-anchor", "middle")  	
+        .style("font-size", "22px") 
+        .text("Citric Acid v/s Volatile Acidity Plot in Red Wines for  " + set);
+		
+
+		// Creating & appending circles by 'quality' filtering according to selected button
+		
+        var circles = svg.selectAll("circle").data(data.filter(function(d){ if (d['quality'] >= num & d['quality'] <= num1) {return d;} }));
+        circles.enter().append("circle");
+        circles
+		  .transition()
+          .delay(500)
+          .duration(750)
+          .attr("cx", function (d){ return xScale(d[xColumn]); })
+          .attr("cy", function (d){ return yScale(d[yColumn]); })
+          .attr("r",  function (d){ return rScale(d[rColumn]); })
+		  .style("fill", function (d) { return colorScale(d[rColumn]); })
+		  .style("opacity", 0.8);
+        circles.exit().remove();
+		
+	  function type(d){
+        d.citric.acid = +d.citric.acid;
+        d.volatile.acidity = +d.volatile.acidity;
+		d.alcohol = +d.alcohol;
+        return d;
+      }
+		
+	  
+      }
+
+      
+	  d3.csv("wineQualityReds.csv", function(data){     // Setting domain for scales
+        set_domain(data);                               // from data set
+		
+		});
+	  
+      d3.csv("wineQualityReds.csv", function(data){     // Upon page loading, whole data
+        render(data,3,8,"Whole Data");                  // is plotted
+      
+	  // Creating x axis
+	  
+	  svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(0," + (550) + ")")
+          .call(xAxis);
+	  svg.append("text")
+          .style("text-anchor", "middle")
+          .attr("x", 700 / 2)
+          .attr("y", 600)
+          .attr("class", "label")
+          .text("Citric Acid (g/dm^3)")
+		  .call(xAxis);
+  
+      
+	  
+      // Creating y axis
+	  
+	  svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(" + 50 + ",0)")
+          .call(yAxis); 
+	  svg.append("text")
+          .style("text-anchor", "middle")
+          .attr("transform", "translate(" + 15 + "," + (550/ 2) + ") rotate(-90)")
+          .attr("class", "label")
+          .text("Volatile Acidity (g/dm^3)")
+		  .call(yAxis);
+
+	 
+	 // Defining events for each button
+	 // These buttons initiate ploting of data by filtering according to 'quality'
+	 
+      d3.select("#Q3").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,3,3,"Quality 3");
+		});	  
+  });
+	 
+
+	  d3.select("#Q4").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,4,4,"Quality 4");
+		});	  
+  });
+
+  
+      d3.select("#Q5").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,5,5,"Quality 5");
+		});	  
+  });
+  
+      
+	  d3.select("#Q6").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,6,6,"Quality 6");
+		});	  
+  });
+	  
+	  d3.select("#Q7").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,7,7,"Quality 7");
+		});	  
+  });
+	  
+	  d3.select("#Q8").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,8,8,"Quality 8");
+		});	  
+  });
+	
+      d3.select("#WD").on("click", function() {
+	       d3.csv("wineQualityReds.csv", function(data){
+              render(data,3,8,"Whole Data");
+		});	  
+  });
+	
+	  
+      });
+
+    
+    </script>
+  </body>
+</html>
